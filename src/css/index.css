@@ -1,15 +1,3 @@
-@font-face {
-  font-family: "Playpen Sans";
-  src: url("../fonts/PlaypenSans-VariableFont_wght.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "trixie";
-  src: url("../fonts/TrixieCyrG-Plain.otf") format("opentype");
-  font-display: swap;
-}
-
 :root {
   /* Generic color tokens (grouped by usage) */
   --color-primary: #b6c4ff; /* main blue (page background, headings) */
@@ -18,6 +6,7 @@
   --color-surface: #121318; /* cards / section background */
   --color-surface-2: #1e1f25; /* secondary surface (datetime, project item) */
   --color-muted: #c6c5d0; /* muted text (descriptions, lunar) */
+  --color-bg: #1d2d61; /* page background */
   --color-outline: #90909a; /* outline */
   --color-black: #000000; /* black */
 }
@@ -29,6 +18,7 @@
 }
 
 body {
+  background: var(--color-bg);
   color: var(--color-text);
   font-family: "Playpen Sans";
   overflow-x: hidden;
@@ -271,4 +261,16 @@ a:visited {
   .pane:nth-child(5) {
     order: 5;
   }
+}
+
+@font-face {
+  font-family: "Playpen Sans";
+  src: url("../fonts/PlaypenSans-VariableFont_wght.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "trixie";
+  src: url("../fonts/TrixieCyrG-Plain.otf") format("opentype");
+  font-display: swap;
 }
