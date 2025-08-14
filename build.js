@@ -11,7 +11,8 @@ const CONFIG = {
   IMAGE_EXTS: [".jpg", ".jpeg", ".png"],
   TEXT_EXTS: [".html", ".css", ".js"],
   FONT_EXTS: [".ttf", ".otf", ".woff2"],
-  IMAGE_QUALITY: 80,
+  IMAGE_QUALITY: 60,
+  IMAGE_EFFORT: 6, // AVIF effort level
   SIZE_INCREMENT: 128,
   MAX_INCREMENT_SIZE: 1024,
   MIN_QUARTER_INCREMENT: 128
@@ -188,15 +189,18 @@ class ImageVariantGenerator {
     FileSystem.ensureDirectory(folderPath);
 
     const fileName = sizeInfo.type === 'original'
-      ? `${this.baseName}.webp`
-      : `${this.baseName}-${sizeInfo.width}w.webp`;
+      ? `${this.baseName}.avif`
+      : `${this.baseName}-${sizeInfo.width}w.avif`;
 
     const outputPath = path.join(folderPath, fileName);
 
     await this.sharpImage
       .clone()
       .resize(sizeInfo.width)
-      .webp({ quality: CONFIG.IMAGE_QUALITY })
+      .avif({ 
+        quality: CONFIG.IMAGE_QUALITY,
+        effort: CONFIG.IMAGE_EFFORT 
+      })
       .toFile(outputPath);
 
     return outputPath;
@@ -228,7 +232,7 @@ class HtmlSrcsetUpdater {
     const srcsetValues = this.generateSrcsetValues(file, generatedImages);
     let updated = false;
 
-    const originalExts = [".jpg", ".jpeg", ".png", ".webp"];
+    const originalExts = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
     
     for (const ext of originalExts) {
       const patterns = this.createPatterns(baseName, baseRef, ext);
@@ -292,7 +296,7 @@ class ImageOptimizer extends FileProcessor {
       return [];
     }
 
-    console.log(`Optimizing ${images.length} images...`);
+    console.log(`Optimizing ${images.length} images to AVIF (quality: ${CONFIG.IMAGE_QUALITY}, effort: ${CONFIG.IMAGE_EFFORT})...`);
     const processedFiles = [];
     const srcsetUpdater = new HtmlSrcsetUpdater(this.buildDir);
 
@@ -315,7 +319,7 @@ class ImageOptimizer extends FileProcessor {
     fs.unlinkSync(imagePath);
     srcsetUpdater.updateAll(originalImage.path, generatedImages);
 
-    console.log(`✓ Processed ${PathUtils.getRelativePath(this.buildDir, imagePath)} -> ${generatedImages.length} variants`);
+    console.log(`✓ Processed ${PathUtils.getRelativePath(this.buildDir, imagePath)} -> ${generatedImages.length} AVIF variants`);
     
     return generatedImages.map(img => img.path);
   }
