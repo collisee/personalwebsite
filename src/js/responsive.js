@@ -52,5 +52,6 @@ function handleResponsiveLayout() {
   });
 }
 
-
-handleResponsiveLayout();
+document.addEventListener("DOMContentLoaded", function () {
+  handleResponsiveLayout();
+});
