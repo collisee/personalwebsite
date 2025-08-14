@@ -234,6 +234,9 @@ a:visited {
     display: flex;
     flex-direction: column;
   }
+  .pane {
+    display: contents;
+  }
   .main-content {
     width: 100%;
     min-width: 0;
@@ -243,19 +246,19 @@ a:visited {
   .time {
     font-size: 7vw;
   }
-  .pane:nth-child(1) {
+  .content-grid > .pane:nth-child(1) > .box:nth-child(1) {
     order: 2;
   }
-  .pane:nth-child(2) {
+  .content-grid > .pane:nth-child(2) > .box:nth-child(1) {
     order: 1;
   }
-  .pane:nth-child(3) {
+  .content-grid > .pane:nth-child(2) > .box:nth-child(2) {
     order: 3;
   }
-  .pane:nth-child(4) {
+  .content-grid > .pane:nth-child(3) > .box:nth-child(1) {
     order: 4;
   }
-  .pane:nth-child(5) {
+  .content-grid > .pane:nth-child(3) > .box:nth-child(2) {
     order: 5;
   }
 }
