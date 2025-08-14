@@ -34,7 +34,7 @@ function handleResponsiveLayout() {
   };
 
   const checkLayout = () => {
-    console.log('checking layout');
+    // console.log('checking layout');
     const isMobile = window.innerWidth < 1024;
     if (isMobile && !isMobileLayout) {
       moveToMobileLayout();

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "node optimizer.js"
+    "build": "node build.js"
   },
   "dependencies": {
     "@swc/core": "^1.13.3",
