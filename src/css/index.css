@@ -163,7 +163,9 @@ a:visited {
   line-height: 0.8;
 }
 
+
 .box::after {
+  content: "";
   position: absolute;
   inset: 0;
   z-index: 10;
