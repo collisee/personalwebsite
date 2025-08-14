@@ -18,7 +18,6 @@
   --color-surface: #121318; /* cards / section background */
   --color-surface-2: #1e1f25; /* secondary surface (datetime, project item) */
   --color-muted: #c6c5d0; /* muted text (descriptions, lunar) */
-  --color-bg: #1d2d61; /* page background */
   --color-outline: #90909a; /* outline */
   --color-black: #000000; /* black */
 }
