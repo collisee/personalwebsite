@@ -350,9 +350,38 @@ class FontConverter {
         compound2simple: true,
       });
 
+      const allowedRanges = [
+        [0x0000, 0x007F], // Basic Latin
+        [0x0080, 0x00FF], // Latin-1 Supplement
+        [0x0100, 0x024F], // Latin Extended-A & B
+        [0x1E00, 0x1EFF], // Latin Extended Additional
+        [0x0300, 0x036F], // Combining Diacritical Marks
+      ];
+      const allowedSingles = [0x20AB]; // Vietnamese đồng sign
+
+      const keptGlyphs = font.find({
+        filter: (glyph) => {
+          if (!glyph.unicode) return false;
+          const code = glyph.unicode;
+          return allowedRanges.some(([start, end]) => code >= start && code <= end) ||
+                allowedSingles.includes(code);
+        }
+      });
+
+      const fontData = font.get();
+
+      fontData.glyf = keptGlyphs;
+
+      fontData.cmap = keptGlyphs.reduce((map, glyph) => {
+        if (glyph.unicode) {
+          map[glyph.unicode] = glyph.name;
+        }
+        return map;
+      }, {});
+
       const uint8 = font.write({ type: "woff2", hinting: true });
-      const outBuffer = Buffer.from(uint8);
-      fs.writeFileSync(outPath, outBuffer);
+      fs.writeFileSync(outPath, Buffer.from(uint8));
+
       return outPath;
     } catch (err) {
       throw new Error(`Failed to process font ${path.basename(fontPath)}: ${err.message}`);
