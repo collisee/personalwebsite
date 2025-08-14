@@ -68,33 +68,74 @@ class FileProcessor {
 }
 
 class ImageOptimizer extends FileProcessor {
+  generateResponsiveSizes(originalWidth) {
+    const sizes = new Set();
+
+    for (
+      let width = 128;
+      width <= Math.min(1024, originalWidth);
+      width += 128
+    ) {
+      sizes.add(width);
+    }
+
+    if (originalWidth > 1024) {
+      const gap = originalWidth - 1024;
+      const incrementBetweenIntervals = gap * 0.25;
+
+      if (incrementBetweenIntervals > 128) {
+        const intervals = [0.25, 0.5, 0.75, 1.0];
+
+        intervals.forEach((ratio) => {
+          const size = Math.round(1024 + gap * ratio);
+          if (size !== originalWidth) {
+            sizes.add(size);
+          }
+        });
+      } else {
+        const midSize = Math.round(1024 + gap * 0.5);
+        if (midSize !== originalWidth && midSize !== 1024) {
+          sizes.add(midSize);
+        }
+      }
+    }
+
+    sizes.add(originalWidth);
+
+    return Array.from(sizes).sort((a, b) => a - b);
+  }
+
   async generateResponsiveImages(imagePath) {
     const sharpImage = sharp(imagePath);
     const { width } = await sharpImage.metadata();
 
     if (!width) throw new Error(`Could not get width for image: ${imagePath}`);
 
-    const sizes = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
+    const sizes = this.generateResponsiveSizes(width);
     const generatedImages = [];
     const baseName = path.basename(imagePath, path.extname(imagePath));
     const dirName = path.dirname(imagePath);
 
-    for (const size of sizes) {
-      const newWidth = Math.round(width * size);
-      const resizedPath = path.join(dirName, `${baseName}-${newWidth}w.png`);
+    console.log(
+      `  Generating ${sizes.length} responsive sizes: ${sizes.join(", ")}px`
+    );
 
-      await sharpImage.clone().resize(newWidth).png().toFile(resizedPath);
+    for (const targetWidth of sizes) {
+      const resizedPath = path.join(dirName, `${baseName}-${targetWidth}w.png`);
+
+      await sharpImage.clone().resize(targetWidth).png().toFile(resizedPath);
 
       const webpPath = resizedPath.replace(/\.png$/, ".webp");
       await sharp(resizedPath).webp({ quality: 80 }).toFile(webpPath);
       fs.unlinkSync(resizedPath);
 
-      generatedImages.push({ path: webpPath, width: newWidth });
+      generatedImages.push({ path: webpPath, width: targetWidth });
     }
 
-    const originalWebpPath = imagePath.replace(/\.[^.]+$/, ".webp");
-    await sharpImage.webp({ quality: 80 }).toFile(originalWebpPath);
-    generatedImages.push({ path: originalWebpPath, width: width });
+    // Find the original size version to use as the main image
+    const originalWebpPath = generatedImages.find(
+      (img) => img.width === width
+    )?.path;
 
     return { originalWebpPath, generatedImages };
   }
@@ -163,6 +204,7 @@ class ImageOptimizer extends FileProcessor {
 
     for (const imagePath of images) {
       try {
+        console.log(`Processing ${path.relative(this.buildDir, imagePath)}...`);
         const { originalWebpPath, generatedImages } =
           await this.generateResponsiveImages(imagePath);
         fs.unlinkSync(imagePath);
@@ -170,7 +212,11 @@ class ImageOptimizer extends FileProcessor {
         await this.updateHtmlSrcset(originalWebpPath, generatedImages);
         processedFiles.push(...generatedImages.map((img) => img.path));
 
-        console.log(`✓ Processed ${path.relative(this.buildDir, imagePath)}`);
+        console.log(
+          `✓ Processed ${path.relative(this.buildDir, imagePath)} (${
+            generatedImages.length
+          } variants)`
+        );
       } catch (error) {
         console.error(
           `✗ Failed to process ${path.relative(this.buildDir, imagePath)}:`,
