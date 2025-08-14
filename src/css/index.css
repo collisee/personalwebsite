@@ -12,12 +12,13 @@
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  text-shadow: 0 0 10px rgba(var(--color-primary), 0.8);
+
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  text-shadow: 0 0 10px color-mix(in srgb, var(--color-primary) 80%, transparent);
   background: var(--color-bg);
   color: var(--color-text);
   font-family: "Playpen Sans";
@@ -174,7 +175,7 @@ a:visited {
   z-index: 10;
   pointer-events: none;
   border-radius: inherit;
-  box-shadow: 5px 5px 10px rgba(var(--color-black), 0.5);
+  box-shadow: 0px 0px 10px color-mix(in srgb, var(--color-black) 50%, transparent);
   border: 2px dashed var(--color-outline);
 }
 
